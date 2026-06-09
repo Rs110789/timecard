@@ -57,10 +57,7 @@ const dbUpsertRecord = async (date, name, patch) => {
     await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
       method: "PATCH",
       body: JSON.stringify({
-        time_in: patch.in ?? null,
         time_out: patch.out ?? null,
-        photo_in: patch.inPhoto ?? null,
-        photo_out: patch.outPhoto ?? null,
       }),
     });
   } else {
@@ -77,6 +74,8 @@ const dbUpsertRecord = async (date, name, patch) => {
     });
   }
 };
+
+
 const dbDeleteRecord = async (date, name) => {
   await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
     method: "DELETE", prefer: "",
