@@ -50,21 +50,33 @@ const dbLoadRecords = async () => {
   return result;
 };
 
-const dbUpsertRecord = async (date, name, patch) => {
-  await sb("timecard_records", {
-    method: "POST",
-    prefer: "resolution=merge-duplicates,return=representation",
-    body: JSON.stringify({
-      employee_name: name,
-      date,
-      time_in: patch.in ?? null,
-      time_out: patch.out ?? null,
-      photo_in: patch.inPhoto ?? null,
-      photo_out: patch.outPhoto ?? null,
-    }),
-  });
-};
 
+const dbUpsertRecord = async (date, name, patch) => {
+  const existing = await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}&select=id`);
+  if (existing.length > 0) {
+    await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        time_in: patch.in ?? null,
+        time_out: patch.out ?? null,
+        photo_in: patch.inPhoto ?? null,
+        photo_out: patch.outPhoto ?? null,
+      }),
+    });
+  } else {
+    await sb("timecard_records", {
+      method: "POST",
+      body: JSON.stringify({
+        employee_name: name,
+        date,
+        time_in: patch.in ?? null,
+        time_out: patch.out ?? null,
+        photo_in: patch.inPhoto ?? null,
+        photo_out: patch.outPhoto ?? null,
+      }),
+    });
+  }
+};
 const dbDeleteRecord = async (date, name) => {
   await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
     method: "DELETE", prefer: "",
