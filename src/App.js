@@ -317,8 +317,8 @@ export default function TimeCard() {
       setEmployees(list);
       setShowAdmin(false);
       showToast("従業員リストを保存しました");
-    } catch(e) {
-      showToast("保存に失敗しました", "#e57373");
+      } catch(e) {
+      showToast("失敗: " + (e.message || JSON.stringify(e)), "#e57373");
     }
   };
 
