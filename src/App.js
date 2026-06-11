@@ -120,7 +120,14 @@ function CameraModal({ name, field, onCapture, onClose }) {
     c.getContext("2d").drawImage(v, 0, 0);
     setCaptured(c.toDataURL("image/jpeg", 0.5));
   };
-  const confirm = () => { streamRef.current?.getTracks().forEach(t => t.stop()); onCapture(captured); };
+  const confirm = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    if (!captured || captured === "data:,") {
+      onCapture(null);
+    } else {
+      onCapture(captured);
+    }
+  };
   const label = field === "in" ? "出勤" : "退勤";
   const color = field === "in" ? "#6abf69" : "#e57373";
 
