@@ -299,11 +299,33 @@ export default function TimeCard() {
     const { name, field } = camera;
     const time = nowTime();
     try {
-      await updateRecord(todayStr(), name, { [field]: time, [`${field}Photo`]: photo });
+      if (field === "out") {
+        // 退勤は直接PATCHのみ
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${encodeURIComponent(todayStr())}`, {
+          method: "PATCH",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+          },
+          body: JSON.stringify({ time_out: time }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        setRecords(prev => ({
+          ...prev,
+          [todayStr()]: {
+            ...(prev[todayStr()]||{}),
+            [name]: { ...getRecord(todayStr(), name), out: time }
+          }
+        }));
+      } else {
+        await updateRecord(todayStr(), name, { [field]: time, [`${field}Photo`]: photo });
+      }
       setCamera(null);
       showToast(`${name} の${field==="in"?"出勤":"退勤"}を記録しました (${time})`, field==="in"?"#6abf69":"#e57373");
     } catch(e) {
-      showToast("保存に失敗しました", "#e57373");
+      showToast("失敗: " + (e.message || String(e)), "#e57373");
     }
   };
 
