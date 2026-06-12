@@ -51,18 +51,31 @@ const dbLoadRecords = async () => {
 };
 
 const dbUpsertRecord = async (date, name, patch) => {
-  await sb("timecard_records", {
-    method: "POST",
-    prefer: "resolution=merge-duplicates,return=representation",
-    body: JSON.stringify({
-      employee_name: name,
-      date,
-      time_in: patch.in ?? null,
-      time_out: patch.out ?? null,
-      photo_in: patch.inPhoto ?? null,
-      photo_out: patch.outPhoto ?? null,
-    }),
-  });
+  if (patch.out) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${encodeURIComponent(date)}`, {
+      method: "PATCH",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify({ time_out: patch.out }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+  } else {
+    await sb("timecard_records", {
+      method: "POST",
+      body: JSON.stringify({
+        employee_name: name,
+        date,
+        time_in: patch.in ?? null,
+        time_out: null,
+        photo_in: patch.inPhoto ?? null,
+        photo_out: null,
+      }),
+    });
+  }
 };
 
 const dbDeleteRecord = async (date, name) => {
