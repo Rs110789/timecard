@@ -137,11 +137,11 @@ function CameraModal({ name, field, onCapture, onClose }) {
         </div>
         <div style={{padding:"20px",display:"flex",gap:"12px"}}>
           {!captured ? (
-            <button onClick={shoot} disabled={!ready} style={{flex:1,padding:"14px",borderRadius:"10px",border:"none",background:ready?color:"#333",color:"#fff",fontSize:"16px",fontWeight:"700",cursor:ready?"pointer":"not-allowed"}}>📷 撮影</button>
+            <button onClick={shoot} disabled={!ready} style={{flex:1,padding:"14px",borderRadius:"10px",border:"none",background:ready?color:"#333",color:"#fff",fontSize:"16px",fontWeight:"700",cursor:ready?"pointer":"not-allowed"}}> 撮影</button>
           ) : (
             <>
               <button onClick={() => setCaptured(null)} style={{flex:1,padding:"14px",borderRadius:"10px",border:"1px solid #444",background:"transparent",color:"#aaa",fontSize:"15px",cursor:"pointer"}}>撮り直す</button>
-              <button onClick={confirm} style={{flex:1,padding:"14px",borderRadius:"10px",border:"none",background:color,color:"#fff",fontSize:"16px",fontWeight:"700",cursor:"pointer"}}>✓ {label}する</button>
+              <button onClick={confirm} style={{flex:1,padding:"14px",borderRadius:"10px",border:"none",background:color,color:"#fff",fontSize:"16px",fontWeight:"700",cursor:"pointer"}}>v {label}する</button>
             </>
           )}
         </div>
@@ -180,7 +180,7 @@ function AdminPanel({ employees, onSave, onClose }) {
         </div>
         <div style={{overflowY:"auto",flex:1,padding:"16px"}}>
           <div style={{background:"#f1f8f1",borderRadius:"12px",padding:"14px",marginBottom:"16px",border:"1px dashed #a5d6a7"}}>
-            <div style={{fontSize:"11px",color:"#388e3c",fontWeight:"700",letterSpacing:"1px",marginBottom:"8px"}}>＋ 新しい従業員を追加</div>
+            <div style={{fontSize:"11px",color:"#388e3c",fontWeight:"700",letterSpacing:"1px",marginBottom:"8px"}}>+ 新しい従業員を追加</div>
             <div style={{display:"flex",gap:"8px"}}>
               <input value={newName} onChange={e=>setNewName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addEmployee()} placeholder="名前を入力"
                 style={{flex:1,padding:"9px 12px",borderRadius:"8px",border:"1px solid #c8e6c9",fontSize:"14px",outline:"none",background:"#fff"}} />
@@ -207,8 +207,8 @@ function AdminPanel({ employees, onSave, onClose }) {
                 ) : (
                   <div style={{padding:"11px 14px",display:"flex",alignItems:"center",gap:"8px"}}>
                     <div style={{display:"flex",flexDirection:"column",gap:"1px"}}>
-                      <button onClick={() => moveUp(i)} disabled={i===0} style={{background:"none",border:"none",color:i===0?"#ddd":"#888",fontSize:"10px",cursor:i===0?"default":"pointer",padding:"1px 3px",lineHeight:1}}>▲</button>
-                      <button onClick={() => moveDown(i)} disabled={i===list.length-1} style={{background:"none",border:"none",color:i===list.length-1?"#ddd":"#888",fontSize:"10px",cursor:i===list.length-1?"default":"pointer",padding:"1px 3px",lineHeight:1}}>▼</button>
+                      <button onClick={() => moveUp(i)} disabled={i===0} style={{background:"none",border:"none",color:i===0?"#ddd":"#888",fontSize:"10px",cursor:i===0?"default":"pointer",padding:"1px 3px",lineHeight:1}}>^</button>
+                      <button onClick={() => moveDown(i)} disabled={i===list.length-1} style={{background:"none",border:"none",color:i===list.length-1?"#ddd":"#888",fontSize:"10px",cursor:i===list.length-1?"default":"pointer",padding:"1px 3px",lineHeight:1}}>v</button>
                     </div>
                     <div style={{width:"30px",height:"30px",borderRadius:"50%",background:"#e8f5e9",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"13px",color:"#4caf50",flexShrink:0}}>{name[0]}</div>
                     <div style={{flex:1,fontSize:"14px",fontWeight:"600",color:"#1b5e20"}}>{name}</div>
@@ -222,7 +222,7 @@ function AdminPanel({ employees, onSave, onClose }) {
         </div>
         <div style={{padding:"16px",borderTop:"1px solid #e8f5e9",flexShrink:0}}>
           <button onClick={handleSave} disabled={saving} style={{width:"100%",padding:"14px",borderRadius:"12px",border:"none",background:saving?"#aaa":"linear-gradient(135deg,#43a047,#2e7d32)",color:"#fff",fontSize:"16px",fontWeight:"700",cursor:saving?"not-allowed":"pointer",boxShadow:"0 3px 12px rgba(46,125,50,0.35)"}}>
-            {saving ? "保存中…" : "✓ 保存する"}
+            {saving ? "保存中…" : "v 保存する"}
           </button>
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function TimeCard() {
 
   if (error) return (
     <div style={{minHeight:"100vh",background:"#e8f5e9",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Noto Sans JP',sans-serif",padding:"24px",gap:"16px"}}>
-      <div style={{fontSize:"32px"}}>⚠️</div>
+      <div style={{fontSize:"32px"}}></div>
       <div style={{color:"#c62828",fontSize:"14px",textAlign:"center"}}>{error}</div>
       <button onClick={loadData} style={{padding:"10px 24px",borderRadius:"8px",border:"none",background:"#4caf50",color:"#fff",fontSize:"14px",fontWeight:"700",cursor:"pointer"}}>再試行</button>
     </div>
@@ -349,4 +349,4 @@ export default function TimeCard() {
           {clockStr.slice(0,5)}<span style={{fontSize:"22px",opacity:.8}}>:{clockStr.slice(6)}</span>
         </div>
         <div style={{textAlign:"center",color:"rgba(255,255,255,0.7)",fontSize:"11px",marginTop:"4px",letterSpacing:"3px"}}>タイムカード</div>
-        <button onClick={() => setShowAdmin(true)} style={{position:"absolute",top:"12px",right:"16px",b
+        <button onClick={() => setShowAdmin(true)} style={{position:"absolute",top:"12px",right:"16px",backg
