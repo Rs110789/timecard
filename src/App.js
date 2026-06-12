@@ -54,12 +54,17 @@ const dbLoadRecords = async () => {
 const dbUpsertRecord = async (date, name, patch) => {
   const existing = await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}&select=id`);
   if (existing.length > 0) {
-    await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
       method: "PATCH",
-      body: JSON.stringify({
-        time_out: patch.out ?? null,
-      }),
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify({ time_out: patch.out }),
     });
+    if (!res.ok) throw new Error(await res.text());
   } else {
     await sb("timecard_records", {
       method: "POST",
