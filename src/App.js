@@ -50,16 +50,19 @@ const dbLoadRecords = async () => {
   return result;
 };
 
-
 const dbUpsertRecord = async (date, name, patch) => {
-  const existing = await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}&select=id`);
-  if (existing.length > 0) {
-    await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
+  if (patch.out) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${encodeURIComponent(date)}`, {
       method: "PATCH",
-      body: JSON.stringify({
-        time_out: patch.out ?? null,
-      }),
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify({ time_out: patch.out }),
     });
+    if (!res.ok) throw new Error(await res.text());
   } else {
     await sb("timecard_records", {
       method: "POST",
@@ -67,9 +70,9 @@ const dbUpsertRecord = async (date, name, patch) => {
         employee_name: name,
         date,
         time_in: patch.in ?? null,
-        time_out: patch.out ?? null,
+        time_out: null,
         photo_in: patch.inPhoto ?? null,
-        photo_out: patch.outPhoto ?? null,
+        photo_out: null,
       }),
     });
   }
