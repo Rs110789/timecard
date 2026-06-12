@@ -408,7 +408,15 @@ export default function TimeCard() {
                     </div>
                   </div>
                   {!rec.in && <button onClick={() => setCamera({name,field:"in"})} style={{width:"100%",padding:"9px",borderRadius:"8px",border:"none",background:"linear-gradient(135deg,#66bb6a,#43a047)",color:"#fff",fontSize:"13px",fontWeight:"700",cursor:"pointer"}}>📷 出勤</button>}
-                  {rec.in && !rec.out && <button onClick={() => setCamera({name,field:"out"})} style={{width:"100%",padding:"9px",borderRadius:"8px",border:"none",background:"linear-gradient(135deg,#ef5350,#c62828)",color:"#fff",fontSize:"13px",fontWeight:"700",cursor:"pointer"}}>📷 退勤</button>}
+                　{rec.in && !rec.out && <button onClick={async () => {
+  const time = nowTime();
+  try {
+    await updateRecord(todayStr(), name, { out: time });
+    showToast(`${name} の退勤を記録しました (${time})`, "#e57373");
+  } catch(e) {
+    showToast("失敗: " + (e.message || String(e)), "#e57373");
+  }
+}}style={{width:"100%",padding:"9px",borderRadius:"8px",border:"none",background:"linear-gradient(135deg,#ef5350,#c62828)",color:"#fff",fontSize:"13px",fontWeight:"700",cursor:"pointer"}}>📷 退勤</button>}
                   {done && <div style={{textAlign:"center",fontSize:"12px",color:"#388e3c",fontWeight:"600"}}>✓ {calcDur(rec.in,rec.out)}</div>}
                 </div>
               );
