@@ -52,22 +52,12 @@ const dbLoadRecords = async () => {
 
 
 const dbUpsertRecord = async (date, name, patch) => {
-  const existing = await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}&select=id,time_in,photo_in`);
+  const existing = await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}&select=id`);
   if (existing.length > 0) {
-    const old = existing[0];
     await sb(`timecard_records?employee_name=eq.${encodeURIComponent(name)}&date=eq.${date}`, {
-      method: "DELETE",
-      prefer: "",
-    });
-    await sb("timecard_records", {
-      method: "POST",
+      method: "PATCH",
       body: JSON.stringify({
-        employee_name: name,
-        date,
-        time_in: old.time_in,
         time_out: patch.out ?? null,
-        photo_in: old.photo_in,
-        photo_out: null,
       }),
     });
   } else {
@@ -79,7 +69,7 @@ const dbUpsertRecord = async (date, name, patch) => {
         time_in: patch.in ?? null,
         time_out: patch.out ?? null,
         photo_in: patch.inPhoto ?? null,
-        photo_out: null,
+        photo_out: patch.outPhoto ?? null,
       }),
     });
   }
