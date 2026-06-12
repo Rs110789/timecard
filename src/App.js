@@ -229,7 +229,6 @@ function AdminPanel({ employees, onSave, onClose }) {
     </div>
   );
 }
-
 // ---- Main App ----
 export default function TimeCard() {
   const [records, setRecords] = useState(null);
@@ -321,7 +320,7 @@ export default function TimeCard() {
 
   if (error) return (
     <div style={{minHeight:"100vh",background:"#e8f5e9",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Noto Sans JP',sans-serif",padding:"24px",gap:"16px"}}>
-      <div style={{fontSize:"32px"}}></div>
+      <div style={{fontSize:"32px"}}>⚠️</div>
       <div style={{color:"#c62828",fontSize:"14px",textAlign:"center"}}>{error}</div>
       <button onClick={loadData} style={{padding:"10px 24px",borderRadius:"8px",border:"none",background:"#4caf50",color:"#fff",fontSize:"14px",fontWeight:"700",cursor:"pointer"}}>再試行</button>
     </div>
@@ -349,4 +348,135 @@ export default function TimeCard() {
           {clockStr.slice(0,5)}<span style={{fontSize:"22px",opacity:.8}}>:{clockStr.slice(6)}</span>
         </div>
         <div style={{textAlign:"center",color:"rgba(255,255,255,0.7)",fontSize:"11px",marginTop:"4px",letterSpacing:"3px"}}>タイムカード</div>
-        <button onClick={() => setShowAdmin(true)} style={{position:"absolute",top:"12px",right:"16px",backg
+        <button onClick={() => setShowAdmin(true)} style={{position:"absolute",top:"12px",right:"16px",background:"rgba(255,255,255,0.25)",border:"1px solid rgba(255,255,255,0.5)",borderRadius:"10px",color:"#fff",padding:"8px 14px",fontSize:"13px",cursor:"pointer",fontWeight:"700"}}>⚙ 管理</button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:"flex",background:"#2e7d32"}}>
+        {[["stamp","打刻"],["list","今日の一覧"],["history","履歴"]].map(([t,label]) => (
+          <button key={t} onClick={() => setTab(t)} style={{flex:1,padding:"11px 0",border:"none",background:tab===t?"#fff":"transparent",color:tab===t?"#2e7d32":"rgba(255,255,255,0.75)",fontSize:"13px",fontWeight:tab===t?"700":"400",cursor:"pointer",transition:"all 0.15s"}}>{label}</button>
+        ))}
+      </div>
+
+      <div style={{padding:"16px"}}>
+
+        {/* STAMP */}
+        {tab === "stamp" && (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"10px"}}>
+            {employees.map(name => {
+              const rec = getRecord(today, name);
+              const done = rec.in && rec.out;
+              const working = rec.in && !rec.out;
+              return (
+                <div key={name} style={{background:done?"#c8e6c9":working?"#fff9c4":"#fff",borderRadius:"12px",padding:"14px 12px",boxShadow:"0 1px 6px rgba(0,0,0,0.08)",border:done?"1px solid #a5d6a7":working?"1px solid #fff176":"1px solid #e8f5e9",transition:"all 0.2s"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+                    <div style={{width:"38px",height:"38px",borderRadius:"50%",overflow:"hidden",background:done?"#81c784":working?"#fff176":"#c8e6c9",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {rec.inPhoto ? <img src={rec.inPhoto} style={{width:"100%",height:"100%",objectFit:"cover"}} alt="" /> : <span style={{fontSize:"18px",color:"#4caf50"}}>☺</span>}
+                    </div>
+                    <div>
+                      <div style={{fontSize:"13px",fontWeight:"700",color:"#1b5e20"}}>{name}</div>
+                      <div style={{fontSize:"10px",color:done?"#388e3c":working?"#f57f17":"#999"}}>{done?"退勤済":working?"出勤中":"未出勤"}</div>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:"6px",marginBottom:"10px"}}>
+                    <div style={{flex:1,background:"rgba(76,175,80,0.1)",borderRadius:"6px",padding:"4px 6px",textAlign:"center"}}>
+                      <div style={{fontSize:"9px",color:"#888",letterSpacing:"1px"}}>出勤</div>
+                      <div style={{fontSize:"13px",fontWeight:"700",color:"#2e7d32",fontFamily:"monospace"}}>{rec.in||"--:--"}</div>
+                    </div>
+                    <div style={{flex:1,background:"rgba(229,115,115,0.1)",borderRadius:"6px",padding:"4px 6px",textAlign:"center"}}>
+                      <div style={{fontSize:"9px",color:"#888",letterSpacing:"1px"}}>退勤</div>
+                      <div style={{fontSize:"13px",fontWeight:"700",color:"#c62828",fontFamily:"monospace"}}>{rec.out||"--:--"}</div>
+                    </div>
+                  </div>
+                  {!rec.in && <button onClick={() => setCamera({name,field:"in"})} style={{width:"100%",padding:"9px",borderRadius:"8px",border:"none",background:"linear-gradient(135deg,#66bb6a,#43a047)",color:"#fff",fontSize:"13px",fontWeight:"700",cursor:"pointer"}}>📷 出勤</button>}
+                  {rec.in && !rec.out && <button onClick={() => setCamera({name,field:"out"})} style={{width:"100%",padding:"9px",borderRadius:"8px",border:"none",background:"linear-gradient(135deg,#ef5350,#c62828)",color:"#fff",fontSize:"13px",fontWeight:"700",cursor:"pointer"}}>📷 退勤</button>}
+                  {done && <div style={{textAlign:"center",fontSize:"12px",color:"#388e3c",fontWeight:"600"}}>✓ {calcDur(rec.in,rec.out)}</div>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* LIST */}
+        {tab === "list" && (
+          <div>
+            <div style={{marginBottom:"14px"}}>
+              <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
+                style={{width:"100%",background:"#fff",border:"1px solid #c8e6c9",borderRadius:"8px",padding:"8px 12px",fontSize:"14px",color:"#1b5e20",outline:"none",cursor:"pointer"}} />
+            </div>
+            <div style={{display:"flex",gap:"8px",marginBottom:"14px"}}>
+              {[["出勤済",employees.filter(n=>getRecord(selectedDate,n).in).length,"#388e3c"],["退勤済",employees.filter(n=>getRecord(selectedDate,n).out).length,"#c62828"],["未出勤",employees.filter(n=>!getRecord(selectedDate,n).in).length,"#9e9e9e"]].map(([label,count,color]) => (
+                <div key={label} style={{flex:1,background:"#fff",borderRadius:"10px",padding:"10px",textAlign:"center",border:`1px solid ${color}33`,boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
+                  <div style={{fontSize:"22px",fontWeight:"700",color}}>{count}</div>
+                  <div style={{fontSize:"10px",color:"#888",letterSpacing:"1px"}}>{label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{background:"#fff",borderRadius:"12px",overflow:"hidden",boxShadow:"0 1px 8px rgba(0,0,0,0.08)"}}>
+              {employees.map((name, i) => {
+                const rec = getRecord(selectedDate, name);
+                return (
+                  <div key={name} style={{display:"flex",alignItems:"center",gap:"10px",padding:"11px 14px",borderBottom:i<employees.length-1?"1px solid #f1f8e9":"none",background:i%2===0?"#fff":"#fafff8"}}>
+                    <div style={{width:"32px",height:"32px",borderRadius:"50%",overflow:"hidden",flexShrink:0,background:"#c8e6c9",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {rec.inPhoto ? <img src={rec.inPhoto} style={{width:"100%",height:"100%",objectFit:"cover"}} alt="" /> : <span style={{fontSize:"16px",color:"#4caf50"}}>☺</span>}
+                    </div>
+                    <div style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#1b5e20"}}>{name}</div>
+                    <div style={{fontFamily:"monospace",fontSize:"13px",color:"#388e3c",minWidth:"42px",textAlign:"center"}}>{rec.in||<span style={{color:"#ccc"}}>—</span>}</div>
+                    <div style={{color:"#bbb",fontSize:"12px"}}>→</div>
+                    <div style={{fontFamily:"monospace",fontSize:"13px",color:"#c62828",minWidth:"42px",textAlign:"center"}}>{rec.out||<span style={{color:"#ccc"}}>—</span>}</div>
+                    <div style={{fontSize:"11px",color:"#7cb342",minWidth:"46px",textAlign:"right"}}>{calcDur(rec.in,rec.out)||""}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* HISTORY */}
+        {tab === "history" && (
+          <div>
+            <div style={{display:"flex",gap:"8px",marginBottom:"16px",flexWrap:"wrap"}}>
+              {allMonths.map(ym => (
+                <button key={ym} onClick={() => setHistoryYM(ym)} style={{padding:"7px 14px",borderRadius:"20px",border:"none",background:historyYM===ym?"#388e3c":"#fff",color:historyYM===ym?"#fff":"#388e3c",fontSize:"13px",fontWeight:"600",cursor:"pointer",boxShadow:"0 1px 4px rgba(0,0,0,0.1)"}}>{monthLabel(ym)}</button>
+              ))}
+            </div>
+            {historyDates.length === 0 ? (
+              <div style={{textAlign:"center",color:"#aaa",padding:"40px",fontSize:"14px"}}>この月の記録はありません</div>
+            ) : historyDates.map(date => {
+              const dateRecs = employees.map(n => ({name:n,...getRecord(date,n)})).filter(r => r.in);
+              if (!dateRecs.length) return null;
+              const d = new Date(date); const days=["日","月","火","水","木","金","土"];
+              return (
+                <div key={date} style={{marginBottom:"14px"}}>
+                  <div style={{fontSize:"12px",fontWeight:"700",color:"#388e3c",marginBottom:"8px",display:"flex",alignItems:"center",gap:"8px"}}>
+                    <div style={{background:"#388e3c",color:"#fff",borderRadius:"6px",padding:"2px 10px",fontSize:"12px"}}>{`${fmt2(d.getMonth()+1)}/${fmt2(d.getDate())} (${days[d.getDay()]})`}</div>
+                    <div style={{color:"#aaa",fontWeight:"400"}}>{dateRecs.length}名出勤</div>
+                  </div>
+                  <div style={{background:"#fff",borderRadius:"12px",overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+                    {dateRecs.map((rec, i) => (
+                      <div key={rec.name} style={{display:"flex",alignItems:"center",gap:"10px",padding:"10px 14px",borderBottom:i<dateRecs.length-1?"1px solid #f1f8e9":"none"}}>
+                        <div style={{width:"28px",height:"28px",borderRadius:"50%",overflow:"hidden",flexShrink:0,background:"#c8e6c9",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {rec.inPhoto ? <img src={rec.inPhoto} style={{width:"100%",height:"100%",objectFit:"cover"}} alt="" /> : <span style={{fontSize:"15px",color:"#4caf50"}}>☺</span>}
+                        </div>
+                        <div style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#1b5e20"}}>{rec.name}</div>
+                        <div style={{fontFamily:"monospace",fontSize:"12px",color:"#555"}}>{rec.in} → {rec.out||"?"}</div>
+                        <div style={{fontSize:"11px",color:"#7cb342",minWidth:"46px",textAlign:"right"}}>{calcDur(rec.in,rec.out)||""}</div>
+                        <button onClick={() => clearRecord(date, rec.name)} style={{background:"none",border:"1px solid #ffcdd2",borderRadius:"6px",color:"#e57373",fontSize:"11px",padding:"3px 7px",cursor:"pointer"}}>削除</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.4)}
+        *{box-sizing:border-box}
+      `}</style>
+    </div>
+  );
+}
